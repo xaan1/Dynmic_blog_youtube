@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>blog js</title>
+</head>
+
+<style>
+
+    body{
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    .container{
+        width: 60%;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px 40px;
+        margin-top: 40px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1{
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    input[type="text"], textarea{
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    textarea{
+        height: 200px;
+    }
+
+
+    button{
+        padding: 10px 20px;
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        width: 100%;
+        cursor: pointer;
+    }
+
+
+    .posts{
+        margin-top: 40px;
+        background-color: white;
+        padding: 20px 40px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        max-width: 500px;
+        margin: 0 auto;
+        margin-top: 50px;
+
+    }
+
+
+    .post{
+        margin-bottom: 20px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+      
+        gap: 10px;
+    }
+
+    .post img{
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    #actons{
+        display: flex;
+        gap: 10px;
+    }
+</style>
+<body>
+
+
+
+    <div class="container">
+        
+        <h1> Create New Post</h1>
+
+        <form  id="form">
+
+            <input type="text" id="title" placeholder="Title">
+            <input type="text" id="image" placeholder="image">
+            <textarea id="content" placeholder="Content"></textarea>
+            <button type="submit">Add Post</button>
+
+
+        </form>
+           
+        </div>
+
+        <div class="posts" id="posts">
+            <h1>Posts</h1>
+        </div>
+
+
+
+
+
+
+        <script>
+
+
+
+            const form = document.getElementById('form');
+            const title = document.getElementById('title');
+            const image = document.getElementById('image');
+            const content = document.getElementById('content');
+            const posts = document.getElementById('posts');
+
+
+
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const posts = JSON.parse(localStorage.getItem('posts')) || [];
+                posts.forEach(post => {
+                    addPost(post);
+                });
+            });
+
+
+
+
+
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+              
+
+                if(title.value !== ""  && content.value !== "" && image.value !== ""){
+
+
+                    const post = {
+                        id : Date.now(),
+                        title: title.value,
+                        image: image.value,
+                        content: content.value
+
+                    }
+
+                    addPost(post);
+                    addLoacalStorage(post);
+                   
+
+                   
+                }else{
+                    alert('Please fill all fields');
+                }
+
+                title.value = "";
+                image.value = "";
+                content.value = "";
+
+            });
+
+
+A
+
+            function addPost(post){
+                const postElement = document.createElement('div');
+                postElement.dataset.id = post.id;
+                postElement.classList.add('post');
+                postElement.innerHTML = `
+                    <h2>${post.title}</h2>
+                    <img src="${post.image}" alt="${post.title}">
+                    <p>${post.content}</p>
+                    <div id = "actons">
+                        <button onclick="EditPost(${post.id})">Edit</button>
+                        <button onclick="deletePost(${post.id})">Delete</button>
+                    </div>
+                   
+
+                `;
+
+                posts.appendChild(postElement);
+            }
+
+
+
+
+
+
+
+            // loacal storage
+
+       
+
+
+            const addLoacalStorage = (post) => {
+                let posts = JSON.parse(localStorage.getItem('posts')) || [];
+                posts.push(post);
+                localStorage.setItem('posts', JSON.stringify(posts));
+            }
+
+
+
+
+
+
+            //  delete post
+
+
+            const deletePost = (id) => {
+                const post = document.querySelector(`.post[data-id="${id}"]`);
+                console.log(post);
+                post.remove();
+
+                let posts = JSON.parse(localStorage.getItem('posts')) || [];
+                posts = posts.filter(post => post.id !== id);
+                localStorage.setItem('posts', JSON.stringify(posts));
+            }
+
+
+
+            // edit post
+
+
+            const EditPost = (id) => {
+                const post = document.querySelector(`.post[data-id="${id}"]`);
+                const postTitle = post.querySelector('h2').textContent;
+                const postImage = post.querySelector('img').src;
+                const postContent = post.querySelector('p').textContent;
+
+             
+                const newTitle = prompt('Enter new title', postTitle);
+                const newImage = prompt('Enter new image', postImage);
+                const newContent = prompt('Enter new content', postContent);
+
+                postTitle.textContent = newTitle;
+                postImage.src = newImage || postImage.src;
+                postContent.textContent = newContent;
+
+
+
+
+                let posts = JSON.parse(localStorage.getItem('posts')) || [];
+
+
+                posts = posts.map(post => {
+                    if(post.id === id){
+                        post.title = newTitle;
+                        post.image = newImage;
+                        post.content = newContent;
+                    }
+                    return post;
+                });
+
+                localStorage.setItem('posts', JSON.stringify(posts));
+                window.location.reload();
+            }
+
+
+
+        </script>
+
+    
+</body>
+</html>
